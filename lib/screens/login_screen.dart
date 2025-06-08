@@ -4,7 +4,6 @@ import 'package:firs_mini_project/screens/sign_up_screen.dart';
 import 'package:firs_mini_project/widgets/pressable_button.dart';
 import 'package:firs_mini_project/widgets/text_form_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 // import 'package:google_fonts/google_fonts.dart';
 
@@ -15,32 +14,43 @@ class LoginScreen extends StatefulWidget {
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
-final _passwordController = TextEditingController();
-final _emailController = TextEditingController();
-final _formKey = GlobalKey<FormState>();
-bool showPassword = false;
+class _LoginScreenState extends State<LoginScreen>
+    with SingleTickerProviderStateMixin {
+  final _passwordController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+  bool showPassword = false;
+  // late TabController _tabController;
 
-class _LoginScreenState extends State<LoginScreen> {
   void _validate() {
     final form = _formKey.currentState;
     if (form!.validate() == false) {
       return;
     } else {
+      if (!mounted) return;
       Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) => const FarmerFormScreen()));
     }
   }
 
   @override
+  void initState() {
+    super.initState();
+    // _tabController = TabController(length: 2, initialIndex: 0, vsync: this);
+  }
+
+  @override
   void dispose() {
     _passwordController.dispose();
     _emailController.dispose();
+    // _tabController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+
     return DefaultTabController(
       length: 2,
       child: Scaffold(
@@ -152,6 +162,32 @@ class _LoginScreenState extends State<LoginScreen> {
                     Center(
                       child: PressableButton(
                           text: 'Continue', onPressed: _validate),
+                    ),
+                    const SizedBox(height: 5),
+
+                    Row(
+                      children: [
+                        Text('Not registered ?',
+                            style: ConstantFonts.inter.copyWith(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w400,
+                                color: Colors.black54)),
+                        // const SizedBox(width: 10),
+                        Builder(
+                          builder: (tabContext) => TextButton(
+                            onPressed: () {
+                              debugPrint(
+                                  'Sign Up pressed: Navigated to Sign Up screen');
+                              DefaultTabController.of(tabContext).animateTo(1);
+                            },
+                            child: Text('Sign Up',
+                                style: ConstantFonts.inter.copyWith(
+                                    fontSize: 14,
+                                    color: Colors.blue,
+                                    fontWeight: FontWeight.w600)),
+                          ),
+                        )
+                      ],
                     )
                   ],
                 ),
@@ -164,48 +200,3 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
-
-// return SafeArea(
-//   child: Scaffold(
-//     appBar: AppBar(
-//       toolbarHeight: 150,
-//       flexibleSpace: Padding(
-//         padding: const EdgeInsets.symmetric(vertical: 30),
-//         child: Row(
-//           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-//           children: [
-//             TextButton(
-//                 onPressed: () {
-//                   setState(() {
-//                     isSelected = true;
-//                   });
-//                 },
-//                 child: Text('Log In',
-//                     style: isSelected == true
-//                         ? Constants.onAppBarSelectedStlye
-//                         : Constants.onAppBarUnSelectedStyle)),
-//             TextButton(
-//                 onPressed: () {
-//                   setState(() {
-//                     isSelected = true;
-//                   });
-//                 },
-//                 child: Text('Log In',
-//                     style: isSelected == true
-//                         ? Constants.onAppBarSelectedStlye
-//                         : Constants.onAppBarUnSelectedStyle)),
-//           ],
-//         ),
-//       ),
-//     ),
-//     body: const Padding(
-//       padding: EdgeInsets.all(26.0),
-//       child: Column(
-//         mainAxisAlignment: MainAxisAlignment.center,
-//         crossAxisAlignment: CrossAxisAlignment.start,
-//         children: [],
-//         // textForm(),
-//       ),
-//     ),
-//   ),
-// );

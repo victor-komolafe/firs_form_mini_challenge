@@ -1,7 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firs_mini_project/constants.dart';
 import 'package:firs_mini_project/screens/farmer_form_screen.dart';
 import 'package:firs_mini_project/widgets/text_form_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -11,11 +13,26 @@ class SignUpScreen extends StatefulWidget {
 }
 
 final _formKey1 = GlobalKey<FormState>();
+final _nameController = TextEditingController();
+final _passwordController = TextEditingController();
+final _emailController = TextEditingController();
+
+Future<void> createUserEmailAndPassword() async {
+  // This function will handle the user creation logic
+  // For example, using Firebase Auth to create a user with email and password
+  // FirebaseAuth.instance.createUserWithEmailAndPassword(email: email, password: password);
+  final userCredential = await FirebaseAuth.instance
+      .createUserWithEmailAndPassword(
+          email: _emailController.text.trim(),
+          password: _passwordController.text.trim())
+      .then((value) {
+    debugPrint('User created successfully: ${value.user?.email}');
+  }).catchError((error) {
+    debugPrint('Error creating user: $error');
+  });
+}
 
 class _SignUpScreenState extends State<SignUpScreen> {
-  final _nameController = TextEditingController();
-  final _passwordController = TextEditingController();
-  final _emailController = TextEditingController();
   @override
   void dispose() {
     _nameController.dispose();
@@ -30,8 +47,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
     if (form!.validate() == false) {
       return;
     } else {
-      Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const FarmerFormScreen()));
+      // Navigator.of(context).pushReplacement(
+      //     MaterialPageRoute(builder: (context) => const FarmerFormScreen()));
     }
   }
 
@@ -127,6 +144,30 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       style: ConstantFonts.inter.copyWith(color: Colors.white),
                     )),
               )),
+              Row(
+                children: [
+                  Text('Already registered ?',
+                      style: ConstantFonts.inter.copyWith(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
+                          color: Colors.black54)),
+                  // const SizedBox(width: 10),
+                  Builder(
+                    builder: (tabContext) => TextButton(
+                      onPressed: () {
+                        debugPrint(
+                            'Login pressed: Navigated to Sign Up screen');
+                        DefaultTabController.of(tabContext).animateTo(0);
+                      },
+                      child: Text('Login',
+                          style: ConstantFonts.inter.copyWith(
+                              fontSize: 14,
+                              color: Colors.blue,
+                              fontWeight: FontWeight.w600)),
+                    ),
+                  )
+                ],
+              )
             ],
           )),
     );
