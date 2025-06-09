@@ -12,27 +12,30 @@ class SignUpScreen extends StatefulWidget {
   State<SignUpScreen> createState() => _SignUpScreenState();
 }
 
-final _formKey1 = GlobalKey<FormState>();
-final _nameController = TextEditingController();
-final _passwordController = TextEditingController();
-final _emailController = TextEditingController();
-
-Future<void> createUserEmailAndPassword() async {
-  // This function will handle the user creation logic
-  // For example, using Firebase Auth to create a user with email and password
-  // FirebaseAuth.instance.createUserWithEmailAndPassword(email: email, password: password);
-  final userCredential = await FirebaseAuth.instance
-      .createUserWithEmailAndPassword(
-          email: _emailController.text.trim(),
-          password: _passwordController.text.trim())
-      .then((value) {
-    debugPrint('User created successfully: ${value.user?.email}');
-  }).catchError((error) {
-    debugPrint('Error creating user: $error');
-  });
-}
-
 class _SignUpScreenState extends State<SignUpScreen> {
+  final _formKey1 = GlobalKey<FormState>();
+  final _nameController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _emailController = TextEditingController();
+
+  Future<bool> createUserEmailAndPassword() async {
+    // This function will handle the user creation logic
+    // For example, using Firebase Auth to create a user with email and password
+    // FirebaseAuth.instance.createUserWithEmailAndPassword(email: email, password: password);
+    try {
+      final userCredential = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(
+              email: _emailController.text.trim(),
+              password: _passwordController.text.trim());
+      debugPrint('User created successfully: ${userCredential.user?.email}');
+      debugPrint(userCredential.user.toString());
+      return true;
+    } on FirebaseAuthException catch (e) {
+      debugPrint('Error creating user: ${e.message}');
+      return false;
+    }
+  }
+
   @override
   void dispose() {
     _nameController.dispose();
@@ -42,13 +45,19 @@ class _SignUpScreenState extends State<SignUpScreen> {
   }
 
   bool showPassword = false;
-  void validate() {
+  void validate() async {
     final form = _formKey1.currentState;
+
     if (form!.validate() == false) {
       return;
     } else {
-      // Navigator.of(context).pushReplacement(
-      //     MaterialPageRoute(builder: (context) => const FarmerFormScreen()));
+      bool value = await createUserEmailAndPassword();
+      if (!value) return;
+
+      if (!mounted) return;
+      debugPrint('Sign Up pressed: Navigated to Farmer Form screen');
+      Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const FarmerFormScreen()));
     }
   }
 

@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firs_mini_project/constants.dart';
 import 'package:firs_mini_project/screens/farmer_form_screen.dart';
 import 'package:firs_mini_project/screens/sign_up_screen.dart';
@@ -16,17 +17,37 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen>
     with SingleTickerProviderStateMixin {
+  // late TabController _tabController;
+
   final _passwordController = TextEditingController();
   final _emailController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   bool showPassword = false;
-  // late TabController _tabController;
 
-  void _validate() {
+  Future<bool> SignInUserEmailAndPassword() async {
+    try {
+      final userCredential = await FirebaseAuth.instance
+          .signInWithEmailAndPassword(
+              email: _emailController.text.trim(),
+              password: _passwordController.text.trim());
+      debugPrint('User created successfully: ${userCredential.user?.email}');
+      debugPrint(userCredential.user.toString());
+      return true;
+    } on FirebaseAuthException catch (e) {
+      debugPrint('Error creating user: ${e.message}');
+      return false;
+    }
+  }
+
+  void _validate() async {
     final form = _formKey.currentState;
     if (form!.validate() == false) {
       return;
     } else {
+      bool value = await SignInUserEmailAndPassword();
+      if (value == false) {
+        return;
+      }
       if (!mounted) return;
       Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) => const FarmerFormScreen()));

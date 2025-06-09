@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "544024326479",
+    "project_id": "firs-form-project",
+    "storage_bucket": "firs-form-project.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:544024326479:android:9f283bf77914fc791dd53a",
+        "android_client_info": {
+          "package_name": "com.example.firs_mini_project"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAKye7pl5-PkDt_MW-CQEUVxHz8IwU6vkI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
