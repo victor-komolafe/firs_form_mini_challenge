@@ -2,6 +2,7 @@ import 'package:firs_mini_project/constants.dart';
 import 'package:firs_mini_project/widgets/dropdown_form_widget.dart';
 import 'package:firs_mini_project/widgets/pressable_button.dart';
 import 'package:firs_mini_project/widgets/text_form_widget.dart';
+import 'package:firs_mini_project/widgets/user_form_details.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -140,6 +141,13 @@ class _FarmerFormScreenState extends State<FarmerFormScreen> {
                   debugPrint('NIN: $nin');
                   debugPrint('LGA: $selectedLGA');
                   debugPrint('Ward: $selectedWard');
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (BuildContext context) => UserFormDetails(
+                          age: age,
+                          name: name,
+                          gender: gender,
+                          nin: nin,
+                          phoneNumber: phoneNumber)));
                 }
               }
 
@@ -184,7 +192,7 @@ class _FarmerFormScreenState extends State<FarmerFormScreen> {
         ));
   }
 
-  Widget FormScreen1() {
+  Widget formScreen1() {
     return Column(
       children: [
         CustomTextField(
@@ -277,7 +285,7 @@ class _FarmerFormScreenState extends State<FarmerFormScreen> {
     );
   }
 
-  Widget FormScreen2() {
+  Widget formScreen2() {
     return Column(
       children: [
         CustomTextField(
@@ -332,13 +340,13 @@ class _FarmerFormScreenState extends State<FarmerFormScreen> {
         Step(
             state: currentStep > 0 ? StepState.complete : StepState.indexed,
             title: const Text(''),
-            content: Form(key: _formKeys[0], child: FormScreen1()),
+            content: Form(key: _formKeys[0], child: formScreen1()),
             // content: FormScreen1(),
             isActive: currentStep >= 0),
         Step(
             state: currentStep > 1 ? StepState.complete : StepState.indexed,
             title: const Text(''),
-            content: Form(key: _formKeys[1], child: FormScreen2()),
+            content: Form(key: _formKeys[1], child: formScreen2()),
             // content: FormScreen2(),
             isActive: currentStep >= 1),
         Step(

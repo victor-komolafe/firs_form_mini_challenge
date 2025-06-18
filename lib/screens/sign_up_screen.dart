@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firs_mini_project/constants.dart';
 import 'package:firs_mini_project/screens/farmer_form_screen.dart';
+import 'package:firs_mini_project/widgets/platform_alert_widget.dart';
 import 'package:firs_mini_project/widgets/text_form_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -28,9 +29,16 @@ class _SignUpScreenState extends State<SignUpScreen> {
               email: _emailController.text.trim(),
               password: _passwordController.text.trim());
       debugPrint('User created successfully: ${userCredential.user?.email}');
+
       debugPrint(userCredential.user.toString());
+
       return true;
     } on FirebaseAuthException catch (e) {
+      final _alert = PlatformAlert(
+          title: "Error Signing In!", message: e.message.toString());
+      if (mounted) {
+        _alert.show(context);
+      }
       debugPrint('Error creating user: ${e.message}');
       return false;
     }
@@ -55,9 +63,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
       if (!value) return;
 
       if (!mounted) return;
-      debugPrint('Sign Up pressed: Navigated to Farmer Form screen');
-      Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const FarmerFormScreen()));
+
+      debugPrint('Sign Up pressed: Navigated to Login screen');
+
+      if (mounted) {
+        final alert = const PlatformAlert(
+            title: "User Successfully created", message: "");
+        alert.show(context);
+        DefaultTabController.of(context).animateTo(0);
+      }
     }
   }
 

@@ -49,7 +49,8 @@ class ConstantFonts {
 }
 
 class ConstantColors {
-  static const Color primaryColor = Colors.white;
+  // static const Color primaryColor = Colors.white;
+  static const Color primaryColor = Colors.blue;
   static const Color secondaryColor = Colors.black;
   static const Color errorColor = Colors.red;
 }

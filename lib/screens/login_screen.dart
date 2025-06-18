@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firs_mini_project/constants.dart';
 import 'package:firs_mini_project/screens/farmer_form_screen.dart';
 import 'package:firs_mini_project/screens/sign_up_screen.dart';
+import 'package:firs_mini_project/widgets/platform_alert_widget.dart';
 import 'package:firs_mini_project/widgets/pressable_button.dart';
 import 'package:firs_mini_project/widgets/text_form_widget.dart';
 import 'package:flutter/material.dart';
@@ -24,16 +25,22 @@ class _LoginScreenState extends State<LoginScreen>
   final _formKey = GlobalKey<FormState>();
   bool showPassword = false;
 
-  Future<bool> SignInUserEmailAndPassword() async {
+  Future<bool> signInUserEmailAndPassword() async {
     try {
       final userCredential = await FirebaseAuth.instance
           .signInWithEmailAndPassword(
               email: _emailController.text.trim(),
               password: _passwordController.text.trim());
-      debugPrint('User created successfully: ${userCredential.user?.email}');
+      debugPrint('User successfully logged in: ${userCredential.user?.email}');
       debugPrint(userCredential.user.toString());
+
       return true;
     } on FirebaseAuthException catch (e) {
+      final alert =
+          PlatformAlert(title: "Login Failed", message: e.message.toString());
+      if (mounted) {
+        alert.show(context);
+      }
       debugPrint('Error creating user: ${e.message}');
       return false;
     }
@@ -44,11 +51,12 @@ class _LoginScreenState extends State<LoginScreen>
     if (form!.validate() == false) {
       return;
     } else {
-      bool value = await SignInUserEmailAndPassword();
+      bool value = await signInUserEmailAndPassword();
       if (value == false) {
         return;
       }
       if (!mounted) return;
+      debugPrint('Successfully logged in');
       Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) => const FarmerFormScreen()));
     }
