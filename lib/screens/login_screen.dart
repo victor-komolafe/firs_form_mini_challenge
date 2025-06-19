@@ -26,6 +26,26 @@ class _LoginScreenState extends State<LoginScreen>
   final _formKey = GlobalKey<FormState>();
   bool showPassword = false;
 
+  // Future<bool> signInUserEmailAndPassword() async {
+  //   try {
+  //     final userCredential = await FirebaseAuth.instance
+  //         .signInWithEmailAndPassword(
+  //             email: _emailController.text.trim(),
+  //             password: _passwordController.text.trim());
+  //     debugPrint('User successfully logged in: ${userCredential.user?.email}');
+  //     debugPrint(userCredential.user.toString());
+  //     return true;
+  //   } on FirebaseAuthException catch (e) {
+  //     final alert =
+  //         PlatformAlert(title: "Login Failed", message: e.message.toString());
+  //     if (mounted) {
+  //       alert.show(context);
+  //     }
+  //     debugPrint('Error creating user: ${e.message}');
+  //     return false;
+  //   }
+  // }
+
   Future<bool> signInUserEmailAndPassword() async {
     try {
       final userCredential = await FirebaseAuth.instance
@@ -34,7 +54,6 @@ class _LoginScreenState extends State<LoginScreen>
               password: _passwordController.text.trim());
       debugPrint('User successfully logged in: ${userCredential.user?.email}');
       debugPrint(userCredential.user.toString());
-
       return true;
     } on FirebaseAuthException catch (e) {
       final alert =
@@ -47,23 +66,33 @@ class _LoginScreenState extends State<LoginScreen>
     }
   }
 
+  // void _validate() async {
+  //   final form = _formKey.currentState;
+  //   if (form!.validate() == false) {
+  //     return;
+  //   } else {
+  //     bool value = await signInUserEmailAndPassword();
+  //     if (value == false) {
+  //       return;
+  //     }
+  //     if (!mounted) return;
+  //     debugPrint('Successfully logged in');
+  //     Navigator.of(context).pushReplacement(
+  //         MaterialPageRoute(builder: (context) => const FarmerFormScreen()));
+  //   }
+  // }
+
   void _validate() async {
     final form = _formKey.currentState;
     if (form!.validate() == false) {
       return;
-    } else {
-      bool value = await signInUserEmailAndPassword();
-      if (value == false) {
-        return;
-      }
-      if (!mounted) return;
-      debugPrint('Successfully logged in');
-      Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const FarmerFormScreen()));
     }
+    setState(() {
+      _loginFuture = signInUserEmailAndPassword();
+    });
   }
 
-  List<Widget> list = [];
+  Future<bool>? _loginFuture;
 
   @override
   void initState() {
@@ -122,107 +151,240 @@ class _LoginScreenState extends State<LoginScreen>
             padding: const EdgeInsets.all(20.0),
             child: TabBarView(
               children: [
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    CustomTextField(
-                        controller: _emailController,
-                        keyboardType: TextInputType.emailAddress,
-                        validator: (text) {
-                          if (text!.isEmpty) {
-                            return 'Email cannot be empty';
-                          } else {
-                            final regex = RegExp('[^@]+@[^.]+..+');
-                            if (!regex.hasMatch(text)) {
-                              return 'Enter a valid Email';
+                _loginFuture == null
+                    ? _LoginScreen()
+                    : FutureBuilder<bool>(
+                        future: _loginFuture,
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.done) {
+                            // Using addPostFrameCallback to navigate after build
+                            WidgetsBinding.instance.addPostFrameCallback((_) {
+                              if (snapshot.data == true && mounted) {
+                                Navigator.of(context).pushReplacement(
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        const FarmerFormScreen(),
+                                  ),
+                                );
+                              }
+                            });
+                          } else if (snapshot.hasError) {
+                            final alert = PlatformAlert(
+                                title: "Login Failed",
+                                message: snapshot.error.toString());
+                            if (mounted) {
+                              alert.show(context);
                             }
-                            return null;
+                            // Show the login form again so the user can retry
+                            return _LoginScreen();
+                          } else if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const Center(
+                                child: CircularProgressIndicator());
                           }
-                        },
-                        formTitleText: 'Your Email',
-                        hintText: 'Enter your email'),
-                    const SizedBox(height: 20),
-                    Text('Password', style: ConstantFonts.inter),
-                    TextFormField(
-                      controller: _passwordController,
-                      keyboardType: TextInputType.text,
-                      obscureText: showPassword == false ? true : false,
-                      decoration: InputDecoration(
-                        suffixIcon: InkWell(
-                            onTap: () {
-                              showPassword = !showPassword;
-                              setState(() {});
-                            },
-                            child: showPassword == false
-                                ? const Icon(
-                                    Icons.visibility_off,
-                                    color: Colors.black12,
-                                  )
-                                : const Icon(
-                                    Icons.visibility,
-                                    color: Colors.black12,
-                                  )),
-                        errorBorder: Constants.globalOnErrorBorderStyle,
-                        focusedBorder: Constants.globalOnSelectedBorderStyle,
-                        focusedErrorBorder: Constants.globalOnErrorBorderStyle,
-                        hintText: 'Enter your password',
-                        enabledBorder: const OutlineInputBorder(
-                            borderSide:
-                                BorderSide(width: 1, color: Colors.black12),
-                            borderRadius: Constants.globalBorderRadius),
-                        contentPadding: const EdgeInsets.symmetric(
-                            vertical: 20, horizontal: 20),
 
-                        // label: Text('Your Email'),
+                          return _LoginScreen();
+                        },
                       ),
-                      validator: (text) {
-                        if (text!.isEmpty) {
-                          return 'Password cannot be empty';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 50),
-                    Center(
-                      child: PressableButton(
-                          text: 'Continue', onPressed: _validate),
-                    ),
-                    const SizedBox(height: 5),
-                    Row(
-                      children: [
-                        Text('Not registered ?',
-                            style: ConstantFonts.inter.copyWith(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w400,
-                                color: Colors.black54)),
-                        // const SizedBox(width: 10),
-                        Builder(
-                          builder: (tabContext) => TextButton(
-                            onPressed: () {
-                              debugPrint(
-                                  'Sign Up pressed: Navigated to Sign Up screen');
-                              _emailController.clear();
-                              _passwordController.clear();
-                              DefaultTabController.of(tabContext).animateTo(1);
-                            },
-                            child: Text('Sign Up',
-                                style: ConstantFonts.inter.copyWith(
-                                    fontSize: 14,
-                                    color: Colors.blue,
-                                    fontWeight: FontWeight.w600)),
-                          ),
-                        )
-                      ],
-                    )
-                  ],
-                ),
+
+                // Column(
+                //   mainAxisAlignment: MainAxisAlignment.start,
+                //   crossAxisAlignment: CrossAxisAlignment.start,
+                //   children: [
+                //     CustomTextField(
+                //         controller: _emailController,
+                //         keyboardType: TextInputType.emailAddress,
+                //         validator: (text) {
+                //           if (text!.isEmpty) {
+                //             return 'Email cannot be empty';
+                //           } else {
+                //             final regex = RegExp('[^@]+@[^.]+..+');
+                //             if (!regex.hasMatch(text)) {
+                //               return 'Enter a valid Email';
+                //             }
+                //             return null;
+                //           }
+                //         },
+                //         formTitleText: 'Your Email',
+                //         hintText: 'Enter your email'),
+                //     const SizedBox(height: 20),
+                //     Text('Password', style: ConstantFonts.inter),
+                //     TextFormField(
+                //       controller: _passwordController,
+                //       keyboardType: TextInputType.text,
+                //       obscureText: showPassword == false ? true : false,
+                //       decoration: InputDecoration(
+                //         suffixIcon: InkWell(
+                //             onTap: () {
+                //               showPassword = !showPassword;
+                //               setState(() {});
+                //             },
+                //             child: showPassword == false
+                //                 ? const Icon(
+                //                     Icons.visibility_off,
+                //                     color: Colors.black12,
+                //                   )
+                //                 : const Icon(
+                //                     Icons.visibility,
+                //                     color: Colors.black12,
+                //                   )),
+                //         errorBorder: Constants.globalOnErrorBorderStyle,
+                //         focusedBorder: Constants.globalOnSelectedBorderStyle,
+                //         focusedErrorBorder: Constants.globalOnErrorBorderStyle,
+                //         hintText: 'Enter your password',
+                //         enabledBorder: const OutlineInputBorder(
+                //             borderSide:
+                //                 BorderSide(width: 1, color: Colors.black12),
+                //             borderRadius: Constants.globalBorderRadius),
+                //         contentPadding: const EdgeInsets.symmetric(
+                //             vertical: 20, horizontal: 20),
+
+                //         // label: Text('Your Email'),
+                //       ),
+                //       validator: (text) {
+                //         if (text!.isEmpty) {
+                //           return 'Password cannot be empty';
+                //         }
+                //         return null;
+                //       },
+                //     ),
+                //     const SizedBox(height: 50),
+                //     Center(
+                //       child: PressableButton(
+                //           text: 'Continue', onPressed: _validate),
+                //     ),
+                //     const SizedBox(height: 5),
+                //     Row(
+                //       children: [
+                //         Text('Not registered ?',
+                //             style: ConstantFonts.inter.copyWith(
+                //                 fontSize: 14,
+                //                 fontWeight: FontWeight.w400,
+                //                 color: Colors.black54)),
+                //         // const SizedBox(width: 10),
+                //         Builder(
+                //           builder: (tabContext) => TextButton(
+                //             onPressed: () {
+                //               debugPrint(
+                //                   'Sign Up pressed: Navigated to Sign Up screen');
+                //               _emailController.clear();
+                //               _passwordController.clear();
+                //               DefaultTabController.of(tabContext).animateTo(1);
+                //             },
+                //             child: Text('Sign Up',
+                //                 style: ConstantFonts.inter.copyWith(
+                //                     fontSize: 14,
+                //                     color: Colors.blue,
+                //                     fontWeight: FontWeight.w600)),
+                //           ),
+                //         )
+                //       ],
+                //     )
+                //   ],
+                // ),
+
                 const SignUpScreen(),
               ],
             ),
           ),
         ),
       ),
+    );
+  }
+
+  Widget _LoginScreen() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        CustomTextField(
+            controller: _emailController,
+            keyboardType: TextInputType.emailAddress,
+            validator: (text) {
+              if (text!.isEmpty) {
+                return 'Email cannot be empty';
+              } else {
+                final regex = RegExp('[^@]+@[^.]+..+');
+                if (!regex.hasMatch(text)) {
+                  return 'Enter a valid Email';
+                }
+                return null;
+              }
+            },
+            formTitleText: 'Your Email',
+            hintText: 'Enter your email'),
+        const SizedBox(height: 20),
+        Text('Password', style: ConstantFonts.inter),
+        TextFormField(
+          controller: _passwordController,
+          keyboardType: TextInputType.text,
+          obscureText: showPassword == false ? true : false,
+          decoration: InputDecoration(
+            suffixIcon: InkWell(
+                onTap: () {
+                  showPassword = !showPassword;
+                  setState(() {});
+                },
+                child: showPassword == false
+                    ? const Icon(
+                        Icons.visibility_off,
+                        color: Colors.black12,
+                      )
+                    : const Icon(
+                        Icons.visibility,
+                        color: Colors.black12,
+                      )),
+            errorBorder: Constants.globalOnErrorBorderStyle,
+            focusedBorder: Constants.globalOnSelectedBorderStyle,
+            focusedErrorBorder: Constants.globalOnErrorBorderStyle,
+            hintText: 'Enter your password',
+            enabledBorder: const OutlineInputBorder(
+                borderSide: BorderSide(width: 1, color: Colors.black12),
+                borderRadius: Constants.globalBorderRadius),
+            contentPadding:
+                const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+
+            // label: Text('Your Email'),
+          ),
+          validator: (text) {
+            if (text!.isEmpty) {
+              return 'Password cannot be empty';
+            }
+            return null;
+          },
+        ),
+        const SizedBox(height: 50),
+        Center(
+          child: PressableButton(text: 'Continue', onPressed: _validate),
+        ),
+        const SizedBox(height: 5),
+        Row(
+          children: [
+            Text('Not registered ?',
+                style: ConstantFonts.inter.copyWith(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w400,
+                    color: Colors.black54)),
+            // const SizedBox(width: 10),
+            Builder(
+              builder: (tabContext) => TextButton(
+                onPressed: () {
+                  debugPrint('Sign Up pressed: Navigated to Sign Up screen');
+                  _emailController.clear();
+                  _passwordController.clear();
+                  DefaultTabController.of(tabContext).animateTo(1);
+                },
+                child: Text('Sign Up',
+                    style: ConstantFonts.inter.copyWith(
+                        fontSize: 14,
+                        color: Colors.blue,
+                        fontWeight: FontWeight.w600)),
+              ),
+            )
+          ],
+        )
+      ],
     );
   }
 }
