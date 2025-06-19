@@ -18,7 +18,7 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen>
     with SingleTickerProviderStateMixin {
-  // late TabController _tabController;
+  late TabController _tabController;
 
   final _passwordController = TextEditingController();
   final _emailController = TextEditingController();
@@ -62,10 +62,17 @@ class _LoginScreenState extends State<LoginScreen>
     }
   }
 
+  List<Widget> list = [];
+
   @override
   void initState() {
     super.initState();
-    // _tabController = TabController(length: 2, initialIndex: 0, vsync: this);
+    _tabController = TabController(length: 2, initialIndex: 0, vsync: this);
+    _tabController.addListener(() {
+      debugPrint("cleared email and password");
+      _passwordController.clear();
+      _emailController.clear();
+    });
   }
 
   @override
@@ -79,17 +86,34 @@ class _LoginScreenState extends State<LoginScreen>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    _emailController.clear();
+    _passwordController.clear();
 
     return DefaultTabController(
       length: 2,
       child: Scaffold(
         appBar: AppBar(
           bottom: TabBar(
+            controller: _tabController,
             dividerHeight: 0,
             indicatorColor: theme.primaryColor,
             labelColor: theme.primaryColor,
             labelStyle: Constants.onAppBarSelectedStlye,
             unselectedLabelStyle: Constants.onAppBarUnSelectedStyle,
+            onTap: (int tappedIndex) {
+              final tabController = DefaultTabController.of(context);
+              if (tabController.index != tappedIndex) {
+                _emailController.clear();
+                _passwordController.clear();
+              }
+            },
+            // onTap: (_) {
+            //   final tabController = DefaultTabController.of(context);
+            //   if (!tabController.index) {
+            //     _emailController.clear();
+            //     _passwordController.clear();
+            //   }
+            // },
             tabs: const [
               Tab(
                 text: ('Log In'),
@@ -124,29 +148,8 @@ class _LoginScreenState extends State<LoginScreen>
                         },
                         formTitleText: 'Your Email',
                         hintText: 'Enter your email'),
-                    // Text('Your Email',
-                    //     style: GoogleFonts.inter(
-                    //         fontWeight: FontWeight.w400, fontSize: 16)),
-                    // TextFormField(
-                    //   controller: _nameController,
-                    //   decoration: const InputDecoration(
-                    //       focusedBorder: Constants.globalOnSelectedBorderStyle,
-                    //       errorBorder: Constants.globalOnErrorBorderStyle,
-                    //       focusedErrorBorder:
-                    //           Constants.globalOnErrorBorderStyle,
-                    //       hintText: 'Enter your mail',
-                    //       // focusedErrorBorder: ,
-                    //       enabledBorder: Constants.globalFormBorderStyle),
-                    //   validator: (text) {
-                    //     return (text!.isEmpty) ? 'Email cannot be empty' : null;
-                    //   },
-                    // ),
-                    // const SizedBox(height: 20),
-                    // // gaa
-
                     const SizedBox(height: 20),
                     Text('Password', style: ConstantFonts.inter),
-
                     TextFormField(
                       controller: _passwordController,
                       keyboardType: TextInputType.text,
@@ -186,14 +189,12 @@ class _LoginScreenState extends State<LoginScreen>
                         return null;
                       },
                     ),
-
                     const SizedBox(height: 50),
                     Center(
                       child: PressableButton(
                           text: 'Continue', onPressed: _validate),
                     ),
                     const SizedBox(height: 5),
-
                     Row(
                       children: [
                         Text('Not registered ?',
@@ -207,6 +208,8 @@ class _LoginScreenState extends State<LoginScreen>
                             onPressed: () {
                               debugPrint(
                                   'Sign Up pressed: Navigated to Sign Up screen');
+                              _emailController.clear();
+                              _passwordController.clear();
                               DefaultTabController.of(tabContext).animateTo(1);
                             },
                             child: Text('Sign Up',
