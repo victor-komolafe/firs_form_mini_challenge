@@ -19,6 +19,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  int selectedIndex = 0;
 
   final _passwordController = TextEditingController();
   final _emailController = TextEditingController();
@@ -79,41 +80,34 @@ class _LoginScreenState extends State<LoginScreen>
   void dispose() {
     _passwordController.dispose();
     _emailController.dispose();
-    // _tabController.dispose();
+    _tabController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    _emailController.clear();
-    _passwordController.clear();
+    // _emailController.clear();
+    // _passwordController.clear();
 
     return DefaultTabController(
       length: 2,
       child: Scaffold(
         appBar: AppBar(
           bottom: TabBar(
-            controller: _tabController,
+            onTap: (_) {
+              // _tabController.addListener(() {
+              debugPrint("cleared email and password");
+              _passwordController.clear();
+              _emailController.clear();
+              // });
+            },
+            // controller: _tabController,
             dividerHeight: 0,
             indicatorColor: theme.primaryColor,
             labelColor: theme.primaryColor,
             labelStyle: Constants.onAppBarSelectedStlye,
             unselectedLabelStyle: Constants.onAppBarUnSelectedStyle,
-            onTap: (int tappedIndex) {
-              final tabController = DefaultTabController.of(context);
-              if (tabController.index != tappedIndex) {
-                _emailController.clear();
-                _passwordController.clear();
-              }
-            },
-            // onTap: (_) {
-            //   final tabController = DefaultTabController.of(context);
-            //   if (!tabController.index) {
-            //     _emailController.clear();
-            //     _passwordController.clear();
-            //   }
-            // },
             tabs: const [
               Tab(
                 text: ('Log In'),
