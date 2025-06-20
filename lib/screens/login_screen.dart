@@ -25,6 +25,8 @@ class _LoginScreenState extends State<LoginScreen>
   final _emailController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   bool showPassword = false;
+  bool loginValidatedwithError =
+      false; //to handle scenerios where error happens and prevent constant plaatform alert showing on every UI change
 
   Future<UserCredential?>? _loginFuture;
 
@@ -61,61 +63,14 @@ class _LoginScreenState extends State<LoginScreen>
     }
   }
 
-  // Future<UserCredential?>? signUserEmailAndPassword() async {
-  //   try {
-  //     final userCredential = await FirebaseAuth.instance
-  //         .signInWithEmailAndPassword(
-  //             email: _emailController.text.trim(),
-  //             password: _passwordController.text.trim());
-  //     debugPrint('User successfully logged in: ${userCredential.user?.email}');
-  //     return userCredential;
-  //   } on FirebaseAuthException catch (e) {
-  //     debugPrint('Error logging in: ${e.message}');
-  //     throw Exception(e.message); // Let FutureBuilder handle the error
-  //   }
-  // }
-  // Future<bool> signInUserEmailAndPassword() async {
-  //   try {
-  //     final userCredential = await FirebaseAuth.instance
-  //         .signInWithEmailAndPassword(
-  //             email: _emailController.text.trim(),
-  //             password: _passwordController.text.trim());
-  //     debugPrint('User successfully logged in: ${userCredential.user?.email}');
-  //     debugPrint(userCredential.user.toString());
-  //     return true;
-  //   } on FirebaseAuthException catch (e) {
-  //     final alert =
-  //         PlatformAlert(title: "Login Failed", message: e.message.toString());
-  //     if (mounted) {
-  //       alert.show(context);
-  //     }
-  //     debugPrint('Error creating user: ${e.message}');
-  //     return false;
-  //   }
-  // }
-
-  // void _validate() async {
-  //   final form = _formKey.currentState;
-  //   if (form!.validate() == false) {
-  //     return;
-  //   } else {
-  //     bool value = await signInUserEmailAndPassword();
-  //     if (value == false) {
-  //       return;
-  //     }
-  //     if (!mounted) return;
-  //     debugPrint('Successfully logged in');
-  //     Navigator.of(context).pushReplacement(
-  //         MaterialPageRoute(builder: (context) => const FarmerFormScreen()));
-  //   }
-  // }
-
   void _validate() async {
     final form = _formKey.currentState;
     if (form!.validate() == false) {
       return;
     }
+
     setState(() {
+      loginValidatedwithError = false;
       _loginFuture = signInUserEmailAndPassword();
     });
   }
@@ -152,6 +107,7 @@ class _LoginScreenState extends State<LoginScreen>
           bottom: TabBar(
             onTap: (_) {
               setState(() {
+                loginValidatedwithError = false;
                 _loginFuture = null;
                 // _tabController.addListener(() {
                 debugPrint("cleared email and password");
@@ -191,7 +147,8 @@ class _LoginScreenState extends State<LoginScreen>
                                 ConnectionState.waiting) {
                               return const Center(
                                   child: CircularProgressIndicator());
-                            } else if (snapshot.hasError) {
+                            } else if (snapshot.hasError &&
+                                loginValidatedwithError == false) {
                               WidgetsBinding.instance.addPostFrameCallback((_) {
                                 final alert = PlatformAlert(
                                     title: "Login Failed",
@@ -199,13 +156,23 @@ class _LoginScreenState extends State<LoginScreen>
                                 if (mounted) {
                                   alert.show(context);
                                 }
+                                setState(() {
+                                  loginValidatedwithError = true;
+                                });
                               });
                               return _LoginScreen();
                             } else if (snapshot.connectionState ==
                                 ConnectionState.done) {
                               if (snapshot.data != null && mounted) {
                                 WidgetsBinding.instance
-                                    .addPostFrameCallback((_) {
+                                    .addPostFrameCallback((_) async {
+                                  final alert = PlatformAlert(
+                                      title:
+                                          "Welcome ${snapshot.data?.user?.displayName}",
+                                      message: snapshot.error.toString());
+
+                                  alert.show(context);
+
                                   Navigator.of(context).pushReplacement(
                                     MaterialPageRoute(
                                       builder: (context) =>
@@ -219,6 +186,7 @@ class _LoginScreenState extends State<LoginScreen>
                                 return _LoginScreen();
                               }
                             }
+
                             return _LoginScreen();
                           }
                         },
@@ -262,8 +230,9 @@ class _LoginScreenState extends State<LoginScreen>
           decoration: InputDecoration(
             suffixIcon: InkWell(
                 onTap: () {
-                  showPassword = !showPassword;
-                  setState(() {});
+                  setState(() {
+                    showPassword = !showPassword;
+                  });
                 },
                 child: showPassword == false
                     ? const Icon(

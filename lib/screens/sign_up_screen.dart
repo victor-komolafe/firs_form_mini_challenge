@@ -20,6 +20,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final _nameController = TextEditingController();
   final _passwordController = TextEditingController();
   final _emailController = TextEditingController();
+  bool signUpValidatedwithError =
+      false; //to handle scenerios where error happens and prevent constant plaatform alert showing on every UI change
 
   Future<UserCredential> createUserEmailAndPassword() async {
     // This function will handle the user creation logic
@@ -60,7 +62,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
     if (form!.validate() == false) {
       return;
     } else {
+      signUpValidatedwithError = false;
       _signUpFuture = createUserEmailAndPassword();
+
       setState(() {});
 
       // if (!mounted) return;
@@ -79,7 +83,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const Center(child: CircularProgressIndicator());
-                    } else if (snapshot.hasError) {
+                    } else if (snapshot.hasError &&
+                        signUpValidatedwithError == false) {
                       WidgetsBinding.instance.addPostFrameCallback((_) {
                         final alert = PlatformAlert(
                             title: "Sign Up Failed",
@@ -87,6 +92,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         if (mounted) {
                           alert.show(context);
                         }
+                        setState(() {
+                          signUpValidatedwithError = true;
+                        });
                       });
                       return _signUpScreen();
                     } else if (snapshot.connectionState ==
@@ -96,7 +104,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           if (mounted) {
                             const alert = PlatformAlert(
                                 title: "User Successfully created",
-                                message: "");
+                                message: "Login to fill the form");
                             _emailController.clear();
                             _passwordController.clear();
                             alert.show(context);
