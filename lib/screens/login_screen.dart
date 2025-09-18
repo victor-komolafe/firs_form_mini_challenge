@@ -26,29 +26,10 @@ class _LoginScreenState extends State<LoginScreen>
   final _formKey = GlobalKey<FormState>();
   bool showPassword = false;
   bool loginValidatedwithError =
-      false; //to handle scenerios where error happens and prevent constant plaatform alert showing on every UI change
+      false; //flag to handle scenerios where error happens and prevent constant plaatform alert showing on every UI change
 
   Future<UserCredential?>? _loginFuture;
 
-  // Future<bool> signInUserEmailAndPassword() async {
-  //   try {
-  //     final userCredential = await FirebaseAuth.instance
-  //         .signInWithEmailAndPassword(
-  //             email: _emailController.text.trim(),
-  //             password: _passwordController.text.trim());
-  //     debugPrint('User successfully logged in: ${userCredential.user?.email}');
-  //     debugPrint(userCredential.user.toString());
-  //     return true;
-  //   } on FirebaseAuthException catch (e) {
-  //     final alert =
-  //         PlatformAlert(title: "Login Failed", message: e.message.toString());
-  //     if (mounted) {
-  //       alert.show(context);
-  //     }
-  //     debugPrint('Error creating user: ${e.message}');
-  //     return false;
-  //   }
-  // }
   Future<UserCredential?>? signInUserEmailAndPassword() async {
     try {
       final userCredential = await FirebaseAuth.instance
@@ -157,7 +138,8 @@ class _LoginScreenState extends State<LoginScreen>
                                   alert.show(context);
                                 }
                                 setState(() {
-                                  loginValidatedwithError = true;
+                                  loginValidatedwithError =
+                                      true; //flag set to true
                                 });
                               });
                               return _LoginScreen();
@@ -166,13 +148,6 @@ class _LoginScreenState extends State<LoginScreen>
                               if (snapshot.data != null && mounted) {
                                 WidgetsBinding.instance
                                     .addPostFrameCallback((_) async {
-                                  final alert = PlatformAlert(
-                                      title:
-                                          "Welcome ${snapshot.data?.user?.displayName}",
-                                      message: snapshot.error.toString());
-
-                                  alert.show(context);
-
                                   Navigator.of(context).pushReplacement(
                                     MaterialPageRoute(
                                       builder: (context) =>
