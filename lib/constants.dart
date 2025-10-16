@@ -57,6 +57,14 @@ class ConstantColors {
 
 enum Genders { male, female }
 
-enum LGA { amac, abaji, garki, abia }
+enum LGA { amac, gwalada, bwari, kuje, kwali, abaji }
 
-enum WardResidence { abj, lagos, abia }
+enum WardResidence {
+  garki,
+  wuse,
+  gwarimpa,
+  nyanya,
+  jiwa,
+}
+
+enum farmingField { aquaculture, apiculture, horticulture, livestock }

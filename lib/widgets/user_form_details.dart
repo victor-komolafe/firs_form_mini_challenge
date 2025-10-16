@@ -10,6 +10,7 @@ class UserFormDetails extends StatelessWidget {
   final String gender;
   final String phoneNumber;
   final String nin;
+  final DateTime? dob;
 
   const UserFormDetails(
       {super.key,
@@ -17,7 +18,8 @@ class UserFormDetails extends StatelessWidget {
       required this.age,
       required this.gender,
       required this.nin,
-      required this.phoneNumber});
+      required this.phoneNumber,
+      required this.dob});
 
   @override
   Widget build(BuildContext context) {
@@ -39,6 +41,8 @@ class UserFormDetails extends StatelessWidget {
               Text('Phone Number: $phoneNumber'),
               const SizedBox(height: 8),
               Text('NIN: $nin'),
+              const SizedBox(height: 8),
+              Text('DOB: $dob'),
               const Spacer(),
               SizedBox(
                 width: double.infinity,

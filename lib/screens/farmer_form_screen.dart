@@ -1,10 +1,13 @@
+import 'package:firebase_database/firebase_database.dart';
 import 'package:firs_mini_project/constants.dart';
+import 'package:firs_mini_project/database/database_service.dart';
 import 'package:firs_mini_project/widgets/dropdown_form_widget.dart';
 import 'package:firs_mini_project/widgets/pressable_button.dart';
 import 'package:firs_mini_project/widgets/text_form_widget.dart';
 import 'package:firs_mini_project/widgets/user_form_details.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
 class FarmerFormScreen extends StatefulWidget {
   const FarmerFormScreen({super.key});
@@ -21,10 +24,13 @@ late String phoneNumber;
 late String nin;
 late String lga;
 late String wardResidence;
+late DateTime? dob;
 
 Genders? selectedGender = Genders.male;
+farmingField? selectedField = farmingField.livestock;
+
 LGA? selectedLGA = LGA.amac;
-WardResidence? selectedWard = WardResidence.abj;
+WardResidence? selectedWard = WardResidence.gwarimpa;
 
 final _formKeys = [
   GlobalKey<FormState>(),
@@ -40,6 +46,7 @@ class _FarmerFormScreenState extends State<FarmerFormScreen> {
   final _addressController = TextEditingController();
   final _regDateController = TextEditingController();
   final _dobController = TextEditingController();
+  final _fieldController = TextEditingController();
 
   @override
   void dispose() {
@@ -70,6 +77,24 @@ class _FarmerFormScreenState extends State<FarmerFormScreen> {
     // if (form?.validate() == false) {
     //   return;
     // }
+  }
+
+  final dateFormatter = MaskTextInputFormatter(
+    mask: '##-##-####',
+    filter: {'#': RegExp(r'[0-9]')},
+    type: MaskAutoCompletionType.lazy,
+  );
+
+  Future<void> _selectDate() async {
+    dob = await showDatePicker(
+        initialDate: DateTime.now(),
+        context: context,
+        firstDate: DateTime(2000),
+        lastDate: DateTime(2100));
+
+    if (dob != null) {
+      _dobController.text = dob.toString().split(" ")[0];
+    }
   }
 
   @override
@@ -117,7 +142,7 @@ class _FarmerFormScreenState extends State<FarmerFormScreen> {
                 ],
               );
             },
-            onStepContinue: () {
+            onStepContinue: () async {
               // _validator();
               final isLastStep = currentStep == getSteps().length - 1;
 
@@ -132,6 +157,21 @@ class _FarmerFormScreenState extends State<FarmerFormScreen> {
                   );
                   return;
                 } else {
+                  DatabaseService dbService = DatabaseService();
+                  // dbService.create(path: 'data 1', data: {'Name': name});
+                  await dbService.createFarmer(
+                      name: name,
+                      age: age,
+                      gender: gender,
+                      phoneNumber: phoneNumber,
+                      nin: nin,
+                      lga: selectedLGA!.name,
+                      wardResidence: selectedWard!.name,
+                      dob: dob!,
+                      farmingField: selectedField!.name);
+                  // DataSnapshot? snapshot = await dbService.read(path: 'data 1');
+                  // print(snapshot!.value);
+
                   _formKeys[currentStep].currentState?.save();
                   debugPrint('Form is valid and saved');
                   debugPrint('Name: $name');
@@ -141,13 +181,17 @@ class _FarmerFormScreenState extends State<FarmerFormScreen> {
                   debugPrint('NIN: $nin');
                   debugPrint('LGA: $selectedLGA');
                   debugPrint('Ward: $selectedWard');
+                  debugPrint('DOB: $dob');
+
                   Navigator.of(context).push(MaterialPageRoute(
                       builder: (BuildContext context) => UserFormDetails(
-                          age: age,
-                          name: name,
-                          gender: gender,
-                          nin: nin,
-                          phoneNumber: phoneNumber)));
+                            age: age,
+                            name: name,
+                            gender: gender,
+                            nin: nin,
+                            phoneNumber: phoneNumber,
+                            dob: dob!,
+                          )));
                 }
               }
 
@@ -324,6 +368,13 @@ class _FarmerFormScreenState extends State<FarmerFormScreen> {
         const SizedBox(height: 20),
         CustomTextField(
           controller: _regDateController,
+          inputFormatters: [
+            MaskTextInputFormatter(
+              mask: '##-##-####',
+              filter: {'#': RegExp(r'[0-9]')},
+              type: MaskAutoCompletionType.lazy,
+            )
+          ],
           formTitleText: 'Registration Date',
           titleTextStyle: const TextStyle(
               fontSize: 16, fontWeight: FontWeight.w400, color: Colors.black),
@@ -356,22 +407,58 @@ class _FarmerFormScreenState extends State<FarmerFormScreen> {
               key: _formKeys[2],
               child: Column(
                 children: [
-                  CustomTextField(
+                  TextField(
                     controller: _dobController,
-                    formTitleText: 'DOB',
-                    hintText: 'Enter your DOB',
-                    validator: (text) =>
-                        text!.isEmpty ? 'Name cannot be empty' : null,
+                    readOnly: true,
+                    decoration: const InputDecoration(
+                        labelText: 'DOB',
+                        filled: true,
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.blue),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide.none,
+                        ),
+                        prefixIcon: Icon(Icons.calendar_month)),
+                    onTap: () {
+                      _selectDate();
+                    },
                   ),
+
+                  // CustomTextField(
+                  //   icon: const Icon(Icons.calendar_month, ),
+                  //   controller: _dobController,
+                  //   formTitleText: 'DOB',
+                  //   hintText: '',
+                  //   validator: (text) =>
+                  //       text!.isEmpty ? 'Name cannot be empty' : null,
+                  // ),
+
                   const SizedBox(height: 20),
-                  CustomTextField(
-                    controller: _ageController,
-                    formTitleText: 'Age',
-                    hintText: 'Enter your Age',
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    validator: (text) =>
-                        text!.isEmpty ? 'Age cannot be empty' : null,
+                  // CustomTextField(
+                  //   controller: _fieldController,
+                  //   formTitleText: 'Age',
+                  //   hintText: 'Enter your Age',
+                  //   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  //   validator: (text) =>
+                  //       text!.isEmpty ? 'Age cannot be empty' : null,
+                  // ),
+
+                  MyDropdownFormWidget(
+                    formTitleText: 'Farming Field',
+                    // value: selectedGender,
+                    items: farmingField.values,
+                    hintText: 'Area of Specialty',
+                    onChanged: (value) {
+                      setState(() {
+                        selectedField = value;
+                      });
+
+                      // gender = value!.name;
+                    },
+                    itemLabelBuilder: (item) => item.name,
                   ),
+
                   const SizedBox(height: 20),
                 ],
               ),
