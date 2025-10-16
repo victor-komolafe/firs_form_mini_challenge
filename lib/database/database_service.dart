@@ -27,6 +27,7 @@ class DatabaseService {
   }) async {
     if (userId == null) throw Exception('User not authenticated');
     try {
+      //create farmer db with child userId
       await _firebaseDatabase.ref().child('farmers').child(userId!).set({
         'name': name,
         'age': age,
@@ -45,6 +46,7 @@ class DatabaseService {
     }
   }
 
+  //read farmer's details
   Future<Map<String, dynamic>?> getFarmerDetails() async {
     if (userId == null) return null;
     try {
