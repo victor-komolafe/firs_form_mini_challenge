@@ -183,6 +183,7 @@ class _LoginScreenState extends State<LoginScreen>
         CustomTextField(
             controller: _emailController,
             keyboardType: TextInputType.emailAddress,
+            autovalidateMode: AutovalidateMode.disabled,
             validator: (text) {
               if (text!.isEmpty) {
                 return 'Email cannot be empty';

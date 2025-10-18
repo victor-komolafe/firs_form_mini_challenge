@@ -273,6 +273,7 @@ class _FarmerFormScreenState extends State<FarmerFormScreen> {
       children: [
         CustomTextField(
           controller: _nameController,
+          // autovalidateMode: AutovalidateMode.onUserInteraction,
           formTitleText: 'Name',
           titleTextStyle: const TextStyle(
               fontSize: 16, fontWeight: FontWeight.w400, color: Colors.black),
@@ -286,44 +287,52 @@ class _FarmerFormScreenState extends State<FarmerFormScreen> {
           },
         ),
         const SizedBox(height: 20),
-        Row(
-          children: [
-            Expanded(
-              child: CustomTextField(
-                controller: _ageController,
-                formTitleText: 'Age',
-                titleTextStyle: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w400,
-                    color: Colors.black),
-                hintText: 'Placeholder Text',
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
-                  LengthLimitingTextInputFormatter(3),
-                ],
-                validator: (text) =>
-                    text!.isEmpty ? 'Age cannot be empty' : null,
-                onSaved: (value) {
-                  age = value!;
-                },
+        IntrinsicHeight(
+          child: Row(
+            children: [
+              Expanded(
+                child: CustomTextField(
+                  controller: _ageController,
+                  formTitleText: 'Age',
+                  titleTextStyle: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w400,
+                      color: Colors.black),
+                  hintText: 'Placeholder Text',
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                    LengthLimitingTextInputFormatter(3),
+                  ],
+                  validator: (text) =>
+                      text!.isEmpty ? 'Age cannot be empty' : null,
+                  onSaved: (value) {
+                    age = value!;
+                  },
+                ),
               ),
-            ),
-            const SizedBox(width: 5),
-            Expanded(
-                child: MyDropdownFormWidget(
-              formTitleText: 'Gender',
-              // value: selectedGender,
-              items: Genders.values,
-              hintText: 'Choose an Option',
-              onChanged: (value) {
-                selectedGender = value;
-                gender = value!.name;
-              },
-              itemLabelBuilder: (item) => item.name,
-            ))
-          ],
+              const SizedBox(width: 5),
+              Expanded(
+                  child: MyDropdownFormWidget(
+                formTitleText: 'Gender',
+                // value: selectedGender,
+                items: Genders.values,
+                hintText: 'Choose an Option',
+                onChanged: (value) {
+                  selectedGender = value;
+                  gender = value!.name;
+                },
+                validator: (value) {
+                  if (value == null) {
+                    return 'Please select gender';
+                  }
+                  return null;
+                },
+                itemLabelBuilder: (item) => item.name,
+              ))
+            ],
+          ),
         ),
-        const SizedBox(height: 20),
+        // const SizedBox(height: 20),
         CustomTextField(
           controller: _phoneNoController,
           formTitleText: 'Phone Number',
@@ -382,10 +391,15 @@ class _FarmerFormScreenState extends State<FarmerFormScreen> {
             selectedLGA = lgaValues;
             lga = lgaValues!.name;
           },
+          validator: (value) {
+            if (value == null) {
+              return 'Please select an LGA';
+            }
+            return null;
+          },
           itemLabelBuilder: (item) => item.name,
         ),
-        const SizedBox(height: 20),
-        const SizedBox(height: 20),
+        // const SizedBox(height: 20),
         MyDropdownFormWidget(
           formTitleText: 'Ward of Residence',
           // value: selectedGender,
@@ -395,9 +409,15 @@ class _FarmerFormScreenState extends State<FarmerFormScreen> {
             selectedWard = wardValues;
             wardResidence = wardValues!.name;
           },
+          validator: (value) {
+            if (value == null) {
+              return 'Please select a ward';
+            }
+            return null;
+          },
           itemLabelBuilder: (item) => item.name,
         ),
-        const SizedBox(height: 20),
+        // const SizedBox(height: 20),
         CustomTextField(
           controller: _regDateController,
           inputFormatters: [
@@ -417,26 +437,6 @@ class _FarmerFormScreenState extends State<FarmerFormScreen> {
         const SizedBox(height: 20),
       ],
     );
-  }
-
-  Uint8List? _image;
-  void selectImage() async {
-    Uint8List img = await pickImage(ImageSource.gallery);
-
-    setState(() {
-      _image = img;
-    });
-  }
-
-  pickImage(ImageSource source) async {
-    final ImagePicker _imagePicker = ImagePicker();
-    XFile? file = await _imagePicker.pickImage(source: source);
-
-    if (file != null) {
-      return await file.readAsBytes();
-    }
-    print('No image Selected');
-    return Uint8List(0);
   }
 
   Widget formScreen3() {
@@ -468,23 +468,35 @@ class _FarmerFormScreenState extends State<FarmerFormScreen> {
         // ),
 
         // const SizedBox(height: 20),
-        TextField(
+        TextFormField(
           controller: _dobController,
+          autovalidateMode: AutovalidateMode.onUserInteraction,
           readOnly: true,
           decoration: const InputDecoration(
-              labelText: 'DOB',
-              filled: true,
-              focusedBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.blue),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderSide: BorderSide.none,
-              ),
-              prefixIcon: Icon(Icons.calendar_month)),
+            labelText: 'DOB',
+            filled: true,
+            focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.blue),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide.none,
+            ),
+            prefixIcon: Icon(Icons.calendar_month),
+          ),
           onTap: () {
             _selectDate();
           },
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please select a date of birth';
+            }
+            return null;
+          },
+          onSaved: (value) {
+            dob = value ?? '';
+          },
         ),
+
         const SizedBox(height: 20),
         MyDropdownFormWidget(
           formTitleText: 'Farming Field',
@@ -497,6 +509,12 @@ class _FarmerFormScreenState extends State<FarmerFormScreen> {
             });
 
             // gender = value!.name;
+          },
+          validator: (value) {
+            if (value == null) {
+              return 'Please select a farming field';
+            }
+            return null;
           },
           itemLabelBuilder: (item) => item.name,
         ),

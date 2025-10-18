@@ -11,9 +11,9 @@ class CustomTextField extends StatelessWidget {
   final bool obscureText;
   final void Function(String?)? onSaved;
   final List<TextInputFormatter>? inputFormatters;
-
   final Icon? icon;
   final String? Function(String?)? validator;
+  final AutovalidateMode? autovalidateMode;
 
   const CustomTextField({
     super.key,
@@ -22,6 +22,7 @@ class CustomTextField extends StatelessWidget {
     required this.hintText,
     this.titleTextStyle,
     this.onSaved,
+    this.autovalidateMode,
     this.inputFormatters,
     this.keyboardType = TextInputType.emailAddress,
     this.obscureText = false,
@@ -42,8 +43,12 @@ class CustomTextField extends StatelessWidget {
             obscureText: obscureText,
             validator: validator,
             onSaved: onSaved,
+            autovalidateMode: (autovalidateMode != null)
+                ? autovalidateMode
+                : AutovalidateMode.onUserInteraction,
             inputFormatters: inputFormatters,
             decoration: InputDecoration(
+              errorStyle: const TextStyle(height: 1),
               errorBorder: Constants.globalOnErrorBorderStyle,
               focusedBorder: Constants.globalOnSelectedBorderStyle,
               focusedErrorBorder: Constants.globalOnErrorBorderStyle,

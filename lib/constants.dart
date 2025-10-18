@@ -57,7 +57,7 @@ class ConstantColors {
 
 enum Genders { male, female }
 
-enum LGA { amac, gwalada, bwari, kuje, kwali, abaji }
+enum LGA { amac, gwagwalada, bwari, kuje, kwali, abaji }
 
 enum WardResidence {
   garki,

@@ -7,6 +7,8 @@ class MyDropdownFormWidget<T> extends StatelessWidget {
     required this.formTitleText,
     this.titleTextStyle,
     this.value,
+    this.validator,
+    this.autovalidateMode,
     required this.items,
     required this.hintText,
     required this.onChanged,
@@ -14,9 +16,11 @@ class MyDropdownFormWidget<T> extends StatelessWidget {
   });
 
   final String formTitleText;
+  final AutovalidateMode? autovalidateMode;
   final TextStyle? titleTextStyle;
   final T? value;
   final List<T> items;
+  final String? Function(T?)? validator; // Add validator
   final String hintText; // Hint text for the dropdown
   final ValueChanged<T?> onChanged; // Callback for when the value changes
   final String Function(T)? itemLabelBuilder; // Function to build item labels
@@ -36,6 +40,7 @@ class MyDropdownFormWidget<T> extends StatelessWidget {
             focusedErrorBorder: Constants.globalOnErrorBorderStyle,
             enabledBorder: Constants.globalFormBorderStyle,
             hintText: hintText,
+            helperText: ' ',
             border: Constants.globalOnSelectedBorderStyle,
           ),
           items: items.map((item) {
@@ -45,6 +50,10 @@ class MyDropdownFormWidget<T> extends StatelessWidget {
             );
           }).toList(),
           onChanged: onChanged,
+          validator: validator,
+          autovalidateMode: (autovalidateMode != null)
+              ? autovalidateMode
+              : AutovalidateMode.onUserInteraction,
         ),
       ],
     );
