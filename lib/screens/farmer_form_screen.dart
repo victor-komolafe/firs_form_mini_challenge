@@ -7,8 +7,12 @@ import 'package:firs_mini_project/widgets/text_form_widget.dart';
 import 'package:firs_mini_project/widgets/user_form_details.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:intl/intl.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
+import 'dart:typed_data';
 
 class FarmerFormScreen extends StatefulWidget {
   const FarmerFormScreen({super.key});
@@ -97,6 +101,30 @@ class _FarmerFormScreenState extends State<FarmerFormScreen> {
     _dobController.text = DateFormat('dd-MM-yyyy').format(pickedDate!);
     dob = _dobController.text;
   }
+
+  // File? _selectedImage;
+  // final ImagePicker _picker = ImagePicker();
+// Add this method to your class
+  // Future<void> _pickImage() async {
+  //   try {
+  //     final XFile? pickedFile = await _picker.pickImage(
+  //       source: ImageSource.gallery,
+  //       maxWidth: 800,
+  //       maxHeight: 800,
+  //       imageQuality: 80,
+  //     );
+
+  //     if (pickedFile != null) {
+  //       setState(() {
+  //         _selectedImage = File(pickedFile.path);
+  //       });
+  //     }
+  //   } catch (e) {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(content: Text('Error selecting image: $e')),
+  //     );
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -391,6 +419,92 @@ class _FarmerFormScreenState extends State<FarmerFormScreen> {
     );
   }
 
+  Uint8List? _image;
+  void selectImage() async {
+    Uint8List img = await pickImage(ImageSource.gallery);
+
+    setState(() {
+      _image = img;
+    });
+  }
+
+  pickImage(ImageSource source) async {
+    final ImagePicker _imagePicker = ImagePicker();
+    XFile? file = await _imagePicker.pickImage(source: source);
+
+    if (file != null) {
+      return await file.readAsBytes();
+    }
+    print('No image Selected');
+    return Uint8List(0);
+  }
+
+  Widget formScreen3() {
+    return Column(
+      children: [
+        // Stack(
+        //   children: [
+        //     _image != null
+        //         ? CircleAvatar(
+        //             radius: 50,
+        //             backgroundImage: MemoryImage(_image!),
+        //           )
+        //         : CircleAvatar(
+        //             radius: 50,
+        //             child: Icon(
+        //               Icons.person,
+        //               size: 50,
+        //               color: Colors.grey[600],
+        //             )),
+        //     Positioned(
+        //       bottom: -10,
+        //       left: 60,
+        //       child: IconButton(
+        //         onPressed: selectImage,
+        //         icon: const Icon(Icons.add_a_photo),
+        //       ),
+        //     )
+        //   ],
+        // ),
+
+        // const SizedBox(height: 20),
+        TextField(
+          controller: _dobController,
+          readOnly: true,
+          decoration: const InputDecoration(
+              labelText: 'DOB',
+              filled: true,
+              focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Colors.blue),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide.none,
+              ),
+              prefixIcon: Icon(Icons.calendar_month)),
+          onTap: () {
+            _selectDate();
+          },
+        ),
+        const SizedBox(height: 20),
+        MyDropdownFormWidget(
+          formTitleText: 'Farming Field',
+          // value: selectedGender,
+          items: farmingField.values,
+          hintText: 'Area of Specialty',
+          onChanged: (value) {
+            setState(() {
+              selectedField = value;
+            });
+
+            // gender = value!.name;
+          },
+          itemLabelBuilder: (item) => item.name,
+        ),
+        const SizedBox(height: 20),
+      ],
+    );
+  }
+
   List<Step> getSteps() => [
         Step(
             state: currentStep > 0 ? StepState.complete : StepState.indexed,
@@ -407,66 +521,7 @@ class _FarmerFormScreenState extends State<FarmerFormScreen> {
         Step(
             state: currentStep >= 2 ? StepState.complete : StepState.indexed,
             title: const Text(''),
-            content: Form(
-              key: _formKeys[2],
-              child: Column(
-                children: [
-                  TextField(
-                    controller: _dobController,
-                    readOnly: true,
-                    decoration: const InputDecoration(
-                        labelText: 'DOB',
-                        filled: true,
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.blue),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide.none,
-                        ),
-                        prefixIcon: Icon(Icons.calendar_month)),
-                    onTap: () {
-                      _selectDate();
-                    },
-                  ),
-
-                  // CustomTextField(
-                  //   icon: const Icon(Icons.calendar_month, ),
-                  //   controller: _dobController,
-                  //   formTitleText: 'DOB',
-                  //   hintText: '',
-                  //   validator: (text) =>
-                  //       text!.isEmpty ? 'Name cannot be empty' : null,
-                  // ),
-
-                  const SizedBox(height: 20),
-                  // CustomTextField(
-                  //   controller: _fieldController,
-                  //   formTitleText: 'Age',
-                  //   hintText: 'Enter your Age',
-                  //   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  //   validator: (text) =>
-                  //       text!.isEmpty ? 'Age cannot be empty' : null,
-                  // ),
-
-                  MyDropdownFormWidget(
-                    formTitleText: 'Farming Field',
-                    // value: selectedGender,
-                    items: farmingField.values,
-                    hintText: 'Area of Specialty',
-                    onChanged: (value) {
-                      setState(() {
-                        selectedField = value;
-                      });
-
-                      // gender = value!.name;
-                    },
-                    itemLabelBuilder: (item) => item.name,
-                  ),
-
-                  const SizedBox(height: 20),
-                ],
-              ),
-            ),
+            content: Form(key: _formKeys[2], child: formScreen3()),
             isActive: currentStep >= 2),
       ];
 }
