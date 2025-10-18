@@ -37,6 +37,8 @@ class DatabaseService {
         'phoneNumber': phoneNumber,
         'nin': nin,
         'lga': lga,
+        'address': address,
+        'registration date': registrationDate,
         'wardResidence': wardResidence,
         'dob': dob,
         'farmingField': farmingField,
