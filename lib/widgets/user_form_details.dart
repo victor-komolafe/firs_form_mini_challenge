@@ -10,7 +10,9 @@ class UserFormDetails extends StatelessWidget {
   final String gender;
   final String phoneNumber;
   final String nin;
-  final DateTime? dob;
+  final String dob;
+  final String lga;
+  final String wardResidence;
 
   const UserFormDetails(
       {super.key,
@@ -19,6 +21,8 @@ class UserFormDetails extends StatelessWidget {
       required this.gender,
       required this.nin,
       required this.phoneNumber,
+      required this.lga,
+      required this.wardResidence,
       required this.dob});
 
   @override
@@ -32,7 +36,7 @@ class UserFormDetails extends StatelessWidget {
             padding: const EdgeInsets.all(16.0),
             child:
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text('Name: $name'),
+              Text('Name: $name', style: ConstantFonts.inter),
               const SizedBox(height: 8),
               Text('Age: $age'),
               const SizedBox(height: 8),
@@ -43,6 +47,10 @@ class UserFormDetails extends StatelessWidget {
               Text('NIN: $nin'),
               const SizedBox(height: 8),
               Text('DOB: $dob'),
+              const SizedBox(height: 8),
+              Text('Ward: $wardResidence'),
+              const SizedBox(height: 8),
+              Text('Lga: $lga'),
               const Spacer(),
               SizedBox(
                 width: double.infinity,
@@ -60,7 +68,7 @@ class UserFormDetails extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 child: PressableButton(
-                  text: "Log Details",
+                  text: "Log Out",
                   onPressed: () async {
                     await FirebaseAuth.instance.signOut();
                     Navigator.of(context).pushReplacement(MaterialPageRoute(

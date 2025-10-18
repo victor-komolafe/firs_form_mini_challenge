@@ -39,6 +39,7 @@ dependencies:
   firebase_auth: ^5.5.4
   mask_text_input_formatter: ^2.9.0
   firebase_database: 11.3.6
+  intl: ^0.18.1
 
 
 dev_dependencies:

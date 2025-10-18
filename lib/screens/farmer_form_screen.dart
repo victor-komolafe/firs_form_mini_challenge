@@ -8,6 +8,7 @@ import 'package:firs_mini_project/widgets/user_form_details.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
+import 'package:intl/intl.dart';
 
 class FarmerFormScreen extends StatefulWidget {
   const FarmerFormScreen({super.key});
@@ -24,7 +25,8 @@ late String phoneNumber;
 late String nin;
 late String lga;
 late String wardResidence;
-late DateTime? dob;
+// late DateTime? dobPickDate;
+String? dob = ''; //var sent to userForm and used in db
 
 Genders? selectedGender = Genders.male;
 farmingField? selectedField = farmingField.livestock;
@@ -86,15 +88,14 @@ class _FarmerFormScreenState extends State<FarmerFormScreen> {
   );
 
   Future<void> _selectDate() async {
-    dob = await showDatePicker(
+    DateTime? pickedDate = await showDatePicker(
         initialDate: DateTime.now(),
         context: context,
         firstDate: DateTime(2000),
-        lastDate: DateTime(2100));
+        lastDate: DateTime.now());
 
-    if (dob != null) {
-      _dobController.text = dob.toString().split(" ")[0];
-    }
+    _dobController.text = DateFormat('dd-MM-yyyy').format(pickedDate!);
+    dob = _dobController.text;
   }
 
   @override
@@ -186,6 +187,8 @@ class _FarmerFormScreenState extends State<FarmerFormScreen> {
 //  TODO: TO CHANGE UPDATE USERFORMDETAILS LOGIC based on DB data
                   Navigator.of(context).push(MaterialPageRoute(
                       builder: (BuildContext context) => UserFormDetails(
+                            lga: lga,
+                            wardResidence: wardResidence,
                             age: age,
                             name: name,
                             gender: gender,
@@ -302,7 +305,7 @@ class _FarmerFormScreenState extends State<FarmerFormScreen> {
           ],
           titleTextStyle: const TextStyle(
               fontSize: 16, fontWeight: FontWeight.w400, color: Colors.black),
-          hintText: 'Enter your Phone Number',
+          hintText: '080...',
           validator: (text) =>
               text!.isEmpty ? 'Phone number can\'t be empty' : null,
           onSaved: (value) {

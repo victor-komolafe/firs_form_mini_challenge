@@ -22,7 +22,7 @@ class DatabaseService {
     required String nin,
     required String lga,
     required String wardResidence,
-    required DateTime? dob,
+    required String? dob,
     required String farmingField,
   }) async {
     if (userId == null) throw Exception('User not authenticated');
@@ -36,7 +36,7 @@ class DatabaseService {
         'nin': nin,
         'lga': lga,
         'wardResidence': wardResidence,
-        'dob': dob?.microsecondsSinceEpoch,
+        'dob': dob,
         'farmingField': farmingField,
         'createdAt': ServerValue.timestamp,
       });
@@ -54,9 +54,9 @@ class DatabaseService {
           await _firebaseDatabase.ref().child('farmers').child(userId!).get();
       if (snapshot.exists) {
         final data = Map<String, dynamic>.from(snapshot.value as Map);
-        if (data['dob'] != null) {
-          data['dob'] = DateTime.fromMillisecondsSinceEpoch(data['dob'] as int);
-        }
+        // if (data['dob'] != null) {
+        //   data['dob'] = DateTime.fromMillisecondsSinceEpoch(data['dob'] as int);
+        // }
         return data;
 
         // return Map<String, dynamic>.from(snapshot.value as Map);
