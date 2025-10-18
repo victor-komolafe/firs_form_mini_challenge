@@ -28,6 +28,8 @@ late String gender;
 late String phoneNumber;
 late String nin;
 late String lga;
+late String address;
+late String registrationDate;
 late String wardResidence;
 // late DateTime? dobPickDate;
 String? dob = ''; //var sent to userForm and used in db
@@ -197,7 +199,9 @@ class _FarmerFormScreenState extends State<FarmerFormScreen> {
                       lga: selectedLGA!.name,
                       wardResidence: selectedWard!.name,
                       dob: dob!,
-                      farmingField: selectedField!.name);
+                      farmingField: selectedField!.name,
+                      address: address,
+                      registrationDate: registrationDate);
                   // DataSnapshot? snapshot = await dbService.read(path: 'data 1');
                   // print(snapshot!.value);
 
@@ -221,6 +225,8 @@ class _FarmerFormScreenState extends State<FarmerFormScreen> {
                             name: name,
                             gender: gender,
                             nin: nin,
+                            address: address,
+                            registrationDate: registrationDate,
                             phoneNumber: phoneNumber,
                             dob: dob!,
                           )));
@@ -380,6 +386,9 @@ class _FarmerFormScreenState extends State<FarmerFormScreen> {
               fontSize: 16, fontWeight: FontWeight.w400, color: Colors.black),
           hintText: 'Placeholder Text',
           validator: (text) => text!.isEmpty ? 'Address cannot be empty' : null,
+          onSaved: (value) {
+            address = value ?? '';
+          },
         ),
         const SizedBox(height: 20),
         MyDropdownFormWidget(
@@ -433,6 +442,9 @@ class _FarmerFormScreenState extends State<FarmerFormScreen> {
           hintText: 'DD-MM-YYYY - the day\'s date',
           validator: (text) =>
               text!.isEmpty ? 'Reg. date cannot be empty' : null,
+          onSaved: (value) {
+            registrationDate = value ?? '';
+          },
         ),
         const SizedBox(height: 20),
       ],

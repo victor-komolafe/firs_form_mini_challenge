@@ -23,6 +23,8 @@ class DatabaseService {
     required String lga,
     required String wardResidence,
     required String? dob,
+    required String? address,
+    required String? registrationDate,
     required String farmingField,
   }) async {
     if (userId == null) throw Exception('User not authenticated');

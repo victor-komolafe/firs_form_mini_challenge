@@ -12,6 +12,8 @@ class UserFormDetails extends StatelessWidget {
   final String nin;
   final String dob;
   final String lga;
+  final String address;
+  final String registrationDate;
   final String wardResidence;
 
   const UserFormDetails(
@@ -20,6 +22,8 @@ class UserFormDetails extends StatelessWidget {
       required this.age,
       required this.gender,
       required this.nin,
+      required this.address,
+      required this.registrationDate,
       required this.phoneNumber,
       required this.lga,
       required this.wardResidence,
@@ -45,6 +49,10 @@ class UserFormDetails extends StatelessWidget {
               Text('Phone Number: $phoneNumber'),
               const SizedBox(height: 8),
               Text('NIN: $nin'),
+              const SizedBox(height: 8),
+              Text('Address: $address'),
+              const SizedBox(height: 8),
+              Text('RegistrationDate: $registrationDate'),
               const SizedBox(height: 8),
               Text('DOB: $dob'),
               const SizedBox(height: 8),
