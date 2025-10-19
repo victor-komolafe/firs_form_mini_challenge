@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 
 class DatabaseService {
@@ -26,6 +29,7 @@ class DatabaseService {
     required String? address,
     required String? registrationDate,
     required String farmingField,
+    required String? profileImagePath,
   }) async {
     if (userId == null) throw Exception('User not authenticated');
     try {
@@ -43,12 +47,39 @@ class DatabaseService {
         'dob': dob,
         'farmingField': farmingField,
         'createdAt': ServerValue.timestamp,
+        'profileImagePath': profileImagePath
       });
       debugPrint('Farmer details created');
     } catch (e) {
       throw Exception('Failed to save farmer data: $e');
     }
   }
+
+  //uploading UserProfile IMage
+  // Future<String?> uploadProfileImage(File imageFile) async {
+  //   if (userId == null) {
+  //     debugPrint('Error: UserID is null');
+  //   }
+  //   try {
+  //     debugPrint('Starting image upload for user: $userId');
+
+  //     final String fileName = 'profile_images/$userId.jpg';
+  //     final Reference storageRef =
+  //         FirebaseStorage.instance.ref().child(fileName);
+
+  //     debugPrint('Uploading to Firebase Storage...');
+  //     final UploadTask uploadTask = storageRef.putFile(imageFile);
+  //     final TaskSnapshot snapshot = await uploadTask;
+
+  //     final String downloadUrl = await snapshot.ref.getDownloadURL();
+  //     debugPrint('Upload successful! Download URL: $downloadUrl');
+
+  //     return downloadUrl; // This should be a https:// URL
+  //   } catch (e) {
+  //     debugPrint('Error uploading image: $e');
+  //     return null;
+  //   }
+  // }
 
   //read farmer's details
   Future<Map<String, dynamic>?> getFarmerDetails() async {
@@ -70,6 +101,7 @@ class DatabaseService {
     } catch (e) {
       throw Exception('Failed to get farmer\'s data: $e');
     }
+    return null;
   }
 
   Future<void> updateFarmer(Map<String, dynamic> updates) async {

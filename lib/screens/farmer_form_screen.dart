@@ -2,6 +2,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:firs_mini_project/constants.dart';
 import 'package:firs_mini_project/database/database_service.dart';
 import 'package:firs_mini_project/widgets/dropdown_form_widget.dart';
+import 'package:firs_mini_project/widgets/image_picker_widget.dart';
 import 'package:firs_mini_project/widgets/pressable_button.dart';
 import 'package:firs_mini_project/widgets/text_form_widget.dart';
 import 'package:firs_mini_project/widgets/user_form_details.dart';
@@ -21,32 +22,32 @@ class FarmerFormScreen extends StatefulWidget {
   State<FarmerFormScreen> createState() => _FarmerFormScreenState();
 }
 
-int currentStep = 0;
-late String name;
-late String age;
-late String gender;
-late String phoneNumber;
-late String nin;
-late String lga;
-late String address;
-late String registrationDate;
-late String wardResidence;
-// late DateTime? dobPickDate;
-String? dob = ''; //var sent to userForm and used in db
-
-Genders? selectedGender = Genders.male;
-farmingField? selectedField = farmingField.livestock;
-
-LGA? selectedLGA = LGA.amac;
-WardResidence? selectedWard = WardResidence.gwarimpa;
-
-final _formKeys = [
-  GlobalKey<FormState>(),
-  GlobalKey<FormState>(),
-  GlobalKey<FormState>()
-];
-
 class _FarmerFormScreenState extends State<FarmerFormScreen> {
+  int currentStep = 0;
+  late String name;
+  late String age;
+  late String gender;
+  late String phoneNumber;
+  late String nin;
+  late String lga;
+  late String address;
+  late String registrationDate;
+  late String wardResidence;
+// late DateTime? dobPickDate;
+  String? dob = ''; //var sent to userForm and used in db
+
+  Genders? selectedGender = Genders.male;
+  farmingField? selectedField = farmingField.livestock;
+
+  LGA? selectedLGA = LGA.amac;
+  WardResidence? selectedWard = WardResidence.gwarimpa;
+
+  final _formKeys = [
+    GlobalKey<FormState>(),
+    GlobalKey<FormState>(),
+    GlobalKey<FormState>()
+  ];
+
   final _nameController = TextEditingController();
   final _ageController = TextEditingController();
   final _phoneNoController = TextEditingController();
@@ -56,6 +57,9 @@ class _FarmerFormScreenState extends State<FarmerFormScreen> {
   final _dobController = TextEditingController();
   final _fieldController = TextEditingController();
 
+  void _safeFomrDataTemporarily() {
+    //TODO: Set up Shared preference for later usage
+  }
   @override
   void dispose() {
     _nameController.dispose();
@@ -67,16 +71,18 @@ class _FarmerFormScreenState extends State<FarmerFormScreen> {
   }
 
   bool _validator() {
+    if (currentStep == 2 && _selectedImage == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select a profile image')),
+      );
+      return false;
+    }
+
     if (_formKeys[currentStep].currentState?.validate() == true) {
       _formKeys[currentStep].currentState?.save();
 
-      // Navigator.of(context).push(MaterialPageRoute(
-      //     builder: (context) =>
-      //         const UserFormDetails(_formKeys[currentStep].currentState)));
       setState(() {});
-      // debugPrint('Form is valid');
       return true;
-      // debugPrint('Form is saved');
     } else {
       debugPrint('Form is not valid');
       return false;
@@ -104,7 +110,8 @@ class _FarmerFormScreenState extends State<FarmerFormScreen> {
     dob = _dobController.text;
   }
 
-  // File? _selectedImage;
+  // late String? imageUrl;
+  File? _selectedImage;
   // final ImagePicker _picker = ImagePicker();
 // Add this method to your class
   // Future<void> _pickImage() async {
@@ -188,51 +195,87 @@ class _FarmerFormScreenState extends State<FarmerFormScreen> {
                   );
                   return;
                 } else {
-                  DatabaseService dbService = DatabaseService();
-                  // dbService.create(path: 'data 1', data: {'Name': name});
-                  await dbService.createFarmer(
-                      name: name,
-                      age: age,
-                      gender: gender,
-                      phoneNumber: phoneNumber,
-                      nin: nin,
-                      lga: selectedLGA!.name,
-                      wardResidence: selectedWard!.name,
-                      dob: dob!,
-                      farmingField: selectedField!.name,
-                      address: address,
-                      registrationDate: registrationDate);
-                  // DataSnapshot? snapshot = await dbService.read(path: 'data 1');
-                  // print(snapshot!.value);
+                  showDialog(
+                    context: context,
+                    barrierDismissible: false,
+                    builder: (context) => const Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  );
 
-                  _formKeys[currentStep].currentState?.save();
-                  debugPrint('Form is valid and saved');
-                  debugPrint('Name: $name');
-                  debugPrint('Age: $age');
-                  debugPrint('Gender: $gender');
-                  debugPrint('Phone: $phoneNumber');
-                  debugPrint('NIN: $nin');
-                  debugPrint('LGA: $selectedLGA');
-                  debugPrint('Ward: $selectedWard');
-                  debugPrint('DOB: $dob');
+                  try {
+                    DatabaseService dbService = DatabaseService();
+                    String? imagePath;
 
-//  TODO: TO CHANGE UPDATE USERFORMDETAILS LOGIC based on DB data
-                  Navigator.of(context).push(MaterialPageRoute(
-                      builder: (BuildContext context) => UserFormDetails(
-                            lga: lga,
-                            wardResidence: wardResidence,
-                            age: age,
-                            name: name,
-                            gender: gender,
-                            nin: nin,
-                            address: address,
-                            registrationDate: registrationDate,
-                            phoneNumber: phoneNumber,
-                            dob: dob!,
-                          )));
+                    // Upload image if selected
+
+                    // if (_selectedImage != null) {
+                    //   debugPrint('Uploading image...');
+                    //   imageUrl =
+                    //       await dbService.uploadProfileImage(_selectedImage!);
+                    //   debugPrint('Image upload result: $imageUrl');
+
+                    //   if (imageUrl == null) {
+                    //     throw Exception('Failed to upload image');
+                    //   }
+                    // }
+
+                    if (_selectedImage != null) {
+                      imagePath =
+                          _selectedImage!.path; // Just use the local path
+                      debugPrint('Image path to save: $imagePath');
+                    }
+                    // Save farmer data with image URL
+                    await dbService.createFarmer(
+                        name: name,
+                        age: age,
+                        gender: gender,
+                        phoneNumber: phoneNumber,
+                        nin: nin,
+                        lga: selectedLGA!.name,
+                        wardResidence: selectedWard!.name,
+                        dob: dob!,
+                        farmingField: selectedField!.name,
+                        address: address,
+                        registrationDate: registrationDate,
+                        profileImagePath: imagePath // Pass the image URL
+                        );
+
+                    // Close loading dialog
+                    Navigator.pop(context);
+
+                    _formKeys[currentStep].currentState?.save();
+                    debugPrint('Form is valid and saved');
+                    debugPrint('Image URL: $imagePath');
+
+                    // Navigate to UserFormDetails with image URL
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (BuildContext context) => UserFormDetails(
+                              lga: lga,
+                              wardResidence: wardResidence,
+                              age: age,
+                              name: name,
+                              gender: gender,
+                              nin: nin,
+
+                              address: address,
+                              registrationDate: registrationDate,
+                              phoneNumber: phoneNumber,
+                              dob: dob!,
+                              profileImageUrl:
+                                  imagePath, // Pass image URL to UserFormDetails
+                            )));
+                  } catch (e) {
+                    // Close loading dialog
+                    Navigator.pop(context);
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Error saving data: $e')),
+                    );
+                    debugPrint('Error saving farmer data: $e');
+                  }
                 }
               }
-
               if (currentStep < getSteps().length - 1) {
                 setState(() {
                   // if (_formKeys[currentStep].currentState!.validate() ==
@@ -454,32 +497,23 @@ class _FarmerFormScreenState extends State<FarmerFormScreen> {
   Widget formScreen3() {
     return Column(
       children: [
-        // Stack(
-        //   children: [
-        //     _image != null
-        //         ? CircleAvatar(
-        //             radius: 50,
-        //             backgroundImage: MemoryImage(_image!),
-        //           )
-        //         : CircleAvatar(
-        //             radius: 50,
-        //             child: Icon(
-        //               Icons.person,
-        //               size: 50,
-        //               color: Colors.grey[600],
-        //             )),
-        //     Positioned(
-        //       bottom: -10,
-        //       left: 60,
-        //       child: IconButton(
-        //         onPressed: selectImage,
-        //         icon: const Icon(Icons.add_a_photo),
-        //       ),
-        //     )
-        //   ],
-        // ),
-
-        // const SizedBox(height: 20),
+        ImagePickerWidget(
+            initialImage: _selectedImage,
+            onImageSelected: (File? image) {
+              setState(() {
+                _selectedImage = image;
+              });
+              debugPrint('Image Selected: ${image?.path}');
+            }),
+        if (_selectedImage == null && currentStep == 2)
+          const Padding(
+            padding: EdgeInsets.only(top: 8.0),
+            child: Text(
+              'Please select a profile image',
+              style: TextStyle(color: Colors.red, fontSize: 12),
+            ),
+          ),
+        const SizedBox(height: 20),
         TextFormField(
           controller: _dobController,
           autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -508,7 +542,6 @@ class _FarmerFormScreenState extends State<FarmerFormScreen> {
             dob = value ?? '';
           },
         ),
-
         const SizedBox(height: 20),
         MyDropdownFormWidget(
           formTitleText: 'Farming Field',

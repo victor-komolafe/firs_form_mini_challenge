@@ -3,6 +3,7 @@
 // import 'package:firs_mini_project/screens/login_screen.dart';
 import 'package:firs_mini_project/screens/farmer_form_screen.dart';
 import 'package:firs_mini_project/screens/splash_screen.dart';
+import 'package:firs_mini_project/widgets/image_picker_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -22,7 +23,9 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: ThemeData(primaryColor: Colors.blue),
-        home: const SplashScreen());
+        home: const SplashScreen()
+        // home: const ImagePickerWidget()
+        );
     // home: const FarmerFormScreen());
   }
 }
