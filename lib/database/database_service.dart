@@ -106,15 +106,40 @@ class DatabaseService {
     return null;
   }
 
-  Future<void> updateFarmer(Map<String, dynamic> updates) async {
+  Future<void> updateFarmerDetails({
+    required String name,
+    required String age,
+    required String gender,
+    required String phoneNumber,
+    required String nin,
+    required String lga,
+    required String wardResidence,
+    required String dob,
+    required String farmingField,
+    required String address,
+    required String registrationDate,
+    String? profileImagePath,
+  }) async {
     if (userId == null) throw Exception('User not authenticated');
 
     try {
-      await _firebaseDatabase
-          .ref()
-          .child('farmers')
-          .child(userId!)
-          .update(updates);
+      // Update existing record instead of creating new one
+      await _firebaseDatabase.ref().child('farmers').child(userId!).update({
+        'name': name,
+        'age': age,
+        'gender': gender,
+        'phoneNumber': phoneNumber,
+        'nin': nin,
+        'lga': lga,
+        'wardResidence': wardResidence,
+        'dob': dob,
+        'farmingField': farmingField,
+        'address': address,
+        'registrationDate': registrationDate,
+        'profileImagePath': profileImagePath,
+        'updatedAt': ServerValue.timestamp, // Add update timestamp
+      });
+      debugPrint('Farmer details updated successfully');
     } catch (e) {
       throw Exception('Failed to update farmer data: $e');
     }

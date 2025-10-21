@@ -268,10 +268,34 @@ class UserFormDetails extends StatelessWidget {
                         Expanded(
                           child: PressableButton(
                             text: "Edit Details",
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                              // Replace the current screen stack with the login screen tab
+                            onPressed: () async {
+                              DatabaseService dbService = DatabaseService();
+                              Map<String, dynamic>? currentData =
+                                  await dbService.getFarmerDetails();
+
+                              if (currentData != null) {
+                                // Navigate to form with existing data
+                                Navigator.of(context).pushReplacement(
+                                  MaterialPageRoute(
+                                    builder: (context) => FarmerFormScreen(
+                                      existingData:
+                                          currentData, // Pass existing data
+                                    ),
+                                  ),
+                                );
+                              } else {
+                                // Fallback - navigate to empty form
+                                Navigator.of(context).pushReplacement(
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        const FarmerFormScreen(),
+                                  ),
+                                );
+                              }
                             },
+
+                            // Navigator.of(context).pop();
+                            // Replace the current screen stack with the login screen tab
                           ),
                         ),
                         const SizedBox(width: 8),
