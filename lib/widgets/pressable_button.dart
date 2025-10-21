@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 
 class PressableButton extends StatelessWidget {
   final String text;
+  final IconData? icon;
   final VoidCallback? onPressed;
   final Color? color;
   final Color? textColor;
   const PressableButton(
-      {required this.text,
+      {this.icon,
+      required this.text,
       required this.onPressed,
       this.color,
       this.textColor,
@@ -26,10 +28,15 @@ class PressableButton extends StatelessWidget {
             decoration: BoxDecoration(
                 color: color ?? Colors.blue,
                 borderRadius: Constants.globalBorderRadius),
-            child: Text(
-              text,
-              style: ConstantFonts.inter
-                  .copyWith(color: textColor ?? Colors.white),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  text,
+                  style: ConstantFonts.inter
+                      .copyWith(color: textColor ?? Colors.white),
+                ),
+              ],
             )));
   }
 }

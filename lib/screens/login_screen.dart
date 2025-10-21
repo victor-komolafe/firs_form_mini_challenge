@@ -1,7 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firs_mini_project/constants.dart';
+import 'package:firs_mini_project/database/database_service.dart';
 import 'package:firs_mini_project/screens/farmer_form_screen.dart';
 import 'package:firs_mini_project/screens/sign_up_screen.dart';
+import 'package:firs_mini_project/screens/user_dashboard_screen.dart';
 import 'package:firs_mini_project/widgets/platform_alert_widget.dart';
 import 'package:firs_mini_project/widgets/pressable_button.dart';
 import 'package:firs_mini_project/widgets/text_form_widget.dart';
@@ -148,12 +150,13 @@ class _LoginScreenState extends State<LoginScreen>
                               if (snapshot.data != null && mounted) {
                                 WidgetsBinding.instance
                                     .addPostFrameCallback((_) async {
-                                  Navigator.of(context).pushReplacement(
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          const FarmerFormScreen(),
-                                    ),
-                                  );
+                                  // Navigator.of(context).pushReplacement(
+                                  //           MaterialPageRoute(
+                                  //             builder: (context) =>
+                                  //                 const FarmerFormScreen(),
+                                  //           ),
+                                  //         );
+                                  _handleLogin();
                                 });
                                 return const SizedBox.shrink();
                               } else {
@@ -173,6 +176,34 @@ class _LoginScreenState extends State<LoginScreen>
         ),
       ),
     );
+  }
+
+  Future<void> _handleLogin() async {
+    try {
+      // Your login logic here...
+      DatabaseService dbService = DatabaseService();
+
+      // Check if user has completed farmer profile
+      bool hasProfile = await dbService.hasFarmerProfile();
+
+      // After successful login, navigate to dashboard
+      if (hasProfile) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const UserDashboardScreen()),
+        );
+      } else {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => const FarmerFormScreen(),
+          ),
+        );
+      }
+    } catch (e) {
+      debugPrint('Error in handleLogin: $e');
+      // Handle login error - maybe show error message
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Error during login: $e')));
+    }
   }
 
   Widget _LoginScreen() {
@@ -273,4 +304,4 @@ class _LoginScreenState extends State<LoginScreen>
   }
 }
 
-class _signUpScreen {}
+// class _signUpScreen {}

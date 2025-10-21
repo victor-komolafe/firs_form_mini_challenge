@@ -32,6 +32,7 @@ class DatabaseService {
     required String? profileImagePath,
   }) async {
     if (userId == null) throw Exception('User not authenticated');
+
     try {
       //create farmer db with child userId
       await _firebaseDatabase.ref().child('farmers').child(userId!).set({
@@ -89,6 +90,7 @@ class DatabaseService {
           await _firebaseDatabase.ref().child('farmers').child(userId!).get();
       if (snapshot.exists) {
         final data = Map<String, dynamic>.from(snapshot.value as Map);
+        debugPrint('Retrieved farmer data: $data');
         // if (data['dob'] != null) {
         //   data['dob'] = DateTime.fromMillisecondsSinceEpoch(data['dob'] as int);
         // }
@@ -119,13 +121,29 @@ class DatabaseService {
   }
 
   // Delete farmer data
-  Future<void> deleteFarmer() async {
+  Future<void> deleteFarmerDetails() async {
     if (userId == null) throw Exception('User not authenticated');
 
     try {
       await _firebaseDatabase.ref().child('farmers').child(userId!).remove();
+      debugPrint('Farmer\'s details deleted');
     } catch (e) {
       throw Exception('Failed to delete farmer data: $e');
+    }
+  }
+
+  Future<bool> hasFarmerProfile() async {
+    if (userId == null) return false;
+
+    try {
+      final snapshot =
+          await _firebaseDatabase.ref().child('farmers').child(userId!).get();
+      bool exists = snapshot.exists;
+      debugPrint('Farmer profile exists: $exists');
+      return exists;
+    } catch (e) {
+      debugPrint('Error checking farmer profile: $e');
+      return false;
     }
   }
 

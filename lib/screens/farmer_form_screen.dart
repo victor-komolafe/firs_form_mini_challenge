@@ -11,7 +11,6 @@ import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:intl/intl.dart';
-import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -67,6 +66,11 @@ class _FarmerFormScreenState extends State<FarmerFormScreen> {
     _phoneNoController.dispose();
     _ninController.dispose();
     _addressController.dispose();
+    _dobController.dispose();
+    _ninController.dispose();
+    _regDateController.dispose();
+    _fieldController.dispose();
+
     super.dispose();
   }
 
@@ -257,7 +261,7 @@ class _FarmerFormScreenState extends State<FarmerFormScreen> {
                               name: name,
                               gender: gender,
                               nin: nin,
-
+                              farmingField: selectedField!.name,
                               address: address,
                               registrationDate: registrationDate,
                               phoneNumber: phoneNumber,
