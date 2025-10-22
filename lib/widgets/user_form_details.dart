@@ -176,8 +176,7 @@ class UserFormDetails extends StatelessWidget {
                 ),
               );
               Navigator.of(context).pushReplacement(
-                MaterialPageRoute(
-                    builder: (context) => const FarmerFormScreen()),
+                MaterialPageRoute(builder: (_) => const FarmerFormScreen()),
               );
             });
             return const SizedBox.shrink();
@@ -322,13 +321,13 @@ class UserFormDetails extends StatelessWidget {
                       onPressed: () async {
                         CustomDialog.show(
                           context: context,
-                          title: 'Clear Details',
+                          title: 'Log Out',
                           content: 'Are you sure you want to Log Out?',
-                          confirmText: 'Delete',
+                          confirmText: 'Log Out',
                           cancelText: 'Cancel',
                           confirmColor: Colors.red,
-                          icon: const Icon(Icons.warning,
-                              color: Colors.orange, size: 32),
+                          icon: const Icon(Icons.exit_to_app,
+                              color: Colors.red, size: 32),
                           onConfirm: () async {
                             Navigator.of(context).pop(); // Close dialog
 

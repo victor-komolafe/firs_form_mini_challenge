@@ -34,7 +34,7 @@ class _FarmerFormScreenState extends State<FarmerFormScreen> {
   late String nin;
   late String lga;
   late String address;
-  late String registrationDate;
+  String registrationDate = '';
   late String wardResidence;
 // late DateTime? dobPickDate;
   String? dob = ''; //var sent to userForm and used in db
@@ -100,7 +100,7 @@ class _FarmerFormScreenState extends State<FarmerFormScreen> {
     _phoneNoController.text = data['phoneNumber'] ?? '';
     _ninController.text = data['nin'] ?? '';
     _addressController.text = data['address'] ?? '';
-    _regDateController.text = data['registrationDate'] ?? '';
+    _regDateController.text = data['registration date'] ?? '';
     _dobController.text = data['dob'] ?? '';
 
     // Set global variables
@@ -236,7 +236,7 @@ class _FarmerFormScreenState extends State<FarmerFormScreen> {
     return Scaffold(
         appBar: AppBar(
           title: Text(
-            'Register a new Farmer',
+            'Register a  Farmer',
             style: ConstantFonts.inter,
           ),
         ),
@@ -754,7 +754,9 @@ class _FarmerFormScreenState extends State<FarmerFormScreen> {
           validator: (text) =>
               text!.isEmpty ? 'Reg. date cannot be empty' : null,
           onSaved: (value) {
+            print('This is the reg date: $registrationDate');
             registrationDate = value ?? '';
+            print('This is the reg date: $registrationDate');
           },
         ),
         const SizedBox(height: 20),
