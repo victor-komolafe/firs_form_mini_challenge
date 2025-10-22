@@ -1,13 +1,11 @@
 import 'dart:io';
 
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firs_mini_project/constants.dart';
 import 'package:firs_mini_project/database/database_service.dart';
 import 'package:firs_mini_project/screens/farmer_form_screen.dart';
 // import 'package:firs_mini_project/constants.dart'
 import 'package:firs_mini_project/screens/splash_screen.dart';
 import 'package:firs_mini_project/widgets/custom_dialog_widget.dart';
-import 'package:firs_mini_project/widgets/platform_alert_widget.dart';
 import 'package:firs_mini_project/widgets/pressable_button.dart';
 import 'package:flutter/material.dart';
 
@@ -175,8 +173,11 @@ class UserFormDetails extends StatelessWidget {
                   backgroundColor: Colors.green,
                 ),
               );
-              Navigator.of(context).pushReplacement(
-                MaterialPageRoute(builder: (_) => const FarmerFormScreen()),
+              Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(
+                  builder: (_) => const FarmerFormScreen(), // fresh screen
+                ),
+                (route) => false, // remove all previous routes
               );
             });
             return const SizedBox.shrink();
@@ -274,13 +275,14 @@ class UserFormDetails extends StatelessWidget {
 
                               if (currentData != null) {
                                 // Navigate to form with existing data
-                                Navigator.of(context).pushReplacement(
+                                if (!context.mounted) return;
+                                Navigator.of(context).pushAndRemoveUntil(
                                   MaterialPageRoute(
                                     builder: (context) => FarmerFormScreen(
-                                      existingData:
-                                          currentData, // Pass existing data
+                                      existingData: currentData,
                                     ),
                                   ),
+                                  (route) => false,
                                 );
                               } else {
                                 // Fallback - navigate to empty form

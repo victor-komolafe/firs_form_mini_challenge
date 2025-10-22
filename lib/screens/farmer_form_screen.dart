@@ -71,6 +71,8 @@ class _FarmerFormScreenState extends State<FarmerFormScreen> {
     // Pre-populate form if editing existing data
     if (widget.existingData != null) {
       _populateExistingData();
+    } else {
+      _resetFormFields();
     }
   }
 
@@ -87,6 +89,40 @@ class _FarmerFormScreenState extends State<FarmerFormScreen> {
     _fieldController.dispose();
 
     super.dispose();
+  }
+
+  //resets form upon clear
+  void _resetFormFields() {
+    _nameController.clear();
+    _ageController.clear();
+    _phoneNoController.clear();
+    _ninController.clear();
+    _addressController.clear();
+    _dobController.clear();
+    _regDateController.clear();
+
+    name = '';
+    age = '';
+    gender = '';
+    phoneNumber = '';
+    nin = '';
+    lga = '';
+    address = '';
+    registrationDate = '';
+    dob = '';
+    wardResidence = '';
+    _selectedImage = null;
+
+    selectedGender = null; // or a default
+    selectedLGA = null;
+    selectedWard = null;
+    selectedField = null;
+
+    for (final key in _formKeys) {
+      key.currentState?.reset();
+    }
+
+    setState(() {});
   }
 
   // Pre-populate form if editing existing data
